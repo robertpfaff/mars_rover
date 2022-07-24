@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Welcome to the Red Planet</title>
+    <meta name="keywords" content="HTML, CSS, JavaScript">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+</head>
+<header>
+    <script>
+        function populate(s1, s2) {
+          var s1 = document.getElementById(s1);
+          var s2 = document.getElementById(s2);
+          s2.innerHTML = "";
+          if (s1.value == "curiosity") {
+            var optionArray = ["ALL | All Camera Angles", "FHAZ | Front Hazard Avoidance Camera", "RHAZ | Rear Hazard Avoidance Camera", "MAST | Mast Camera", "CHEMCAM | Chemistry and Camera Complex", "MAHLI | Mars Hand Lens Imager", "MARDI | Mars Descent Imager", "NAVCAM | Navigation Camera"];
+          } else if (s1.value == "opportunity") {
+            var optionArray = ["ALL | All Camera Angles", "FHAZ | Front Hazard Avoidance Camera", "RHAZ | Rear Hazard Avoidance Camera", "NAVCAM | Navigation Camera", "PANCAM | Panoramic Camera", "MINITES | Miniature Thermal Emission Spectrometer"];
+          } else if (s1.value == "spirit") {
+            var optionArray = ["ALL | All Cameras Angles", "FHAZ | Front Hazard Avoidance Camera", "RHAZ | Rear Hazard Avoidance Camera", "NAVCAM | Navigation Camera", "PANCAM | Panoramic Camera", "MINITES | Miniature Thermal Emission Spectrometer"];
+          }
+          for (var option in optionArray) {
+            var pair = optionArray[option].split("|");
+            var newOption = document.createElement("option");
+            newOption.value = pair[0];
+            newOption.innerHTML = pair[1];
+            s2.options.add(newOption);
+          }
+        }
+      </script>
+</header>
+      <body>
+
+        <div id="root">
+                <!--Beginning of form -->
+                <div id="userInput">
+                  <form action="http://localhost:3000/userinput" method="POST">
+                  <!-- PLace stylesheet here-->
+                  <div name="name">
+                  <label> What is your first name, earthling?</label>
+                  <input required type="text" id="name" name="name" minlength="4" maxlength="25" size="25">
+                  </div>
+                  <!-- Dynamically populate camera menus as not all rovers have have the same cameras -->
+                  <div name="rover">
+                    <label>Please choose a rover.</label>
+                    <select required id="rover" name="rover" onchange="populate(this.id,'camera')">
+                      <option value=""></option>
+                      <option id="curiosity" name="curiosity" value="curiosity">Curiosity</option>
+                      <option id="opportunity" name="opportunity" value="opportunity">Opportunity</option>
+                      <option id="spirit" name="spirit" value="spirit">Spirit</option>
+                    </select>
+                  </div>
+                  <div name="camera">
+                    <label>Select a camera angle</label>
+                    <hr />
+                    <select name="camera" id="camera" value="ALL"> </select>
+                  </div>
+                <!-- Form button calls handleInput function. -->
+                <br>
+                <button id="submit" name="submit">Transmit Images</button>
+                <hr />
+                <div id="results" name="results">
+                <p>Earthling</p><span id="result-name"></span>
+                <p>Chosen Rover</p><span id="result-rover"></span>
+                <p>Camera Angle</p><span id="result-camera"></span>
+                </div>
+                </div>
+                  <!--Form ends -->
+            </form>
+            <!--End of root -->
+        </div>
+    <footer>
+        <script src="/client.js"></script>
+    </footer>
+</body>
+</html>
