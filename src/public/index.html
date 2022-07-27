@@ -30,12 +30,11 @@
       </script>
 </header>
       <body>
-
         <div id="root">
                 <!--Beginning of form -->
                 <div id="userInput">
-                  <form action="http://localhost:3000/userinput" method="POST">
-                  <!-- PLace stylesheet here-->
+                  <form name="form" id="form" method="POST" action="/results"></form>
+                  <!-- Place stylesheet here-->
                   <div name="name">
                   <label> What is your first name, earthling?</label>
                   <input required type="text" id="name" name="name" minlength="4" maxlength="25" size="25">
@@ -57,7 +56,8 @@
                   </div>
                 <!-- Form button calls handleInput function. -->
                 <br>
-                <button id="submit" name="submit">Transmit Images</button>
+                <!-- see form header for onclick event call does it need () ??? -->
+                <input id="submit" name='submit' type="button" value="Transmit Images" onclick="getRoverPhotos(store,updateStore)" />
                 <hr />
                 <div id="results" name="results">
                 <p>Earthling</p><span id="result-name"></span>
@@ -70,7 +70,7 @@
             <!--End of root -->
         </div>
     <footer>
-        <script src="/client.js"></script>
+      <script src="/client.js"></script>
     </footer>
 </body>
 </html>
