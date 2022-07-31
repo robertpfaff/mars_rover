@@ -5,6 +5,32 @@
     <meta name="keywords" content="HTML, CSS, JavaScript">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href='//fonts.googleapis.com/css?family=Montserrat'>
+    <style>
+      body {
+        padding: 10;
+        margin: 10;
+        font-family: 'Monserrat', sans-serif;
+        background-color: #f9f7fb;
+        overflow:hidden;
+      }
+      select {
+          height: 35px;
+          width: 250px;
+          margin: 10px;
+      }
+      select:focus {
+          min-width: 250px;
+          height: auto;
+          width: auto;
+      }
+      input[type="text"]
+      { font-size:px;
+        height: auto;
+        width: auto;
+      }
+  </style>
 </head>
 <header>
     <script>
@@ -13,11 +39,11 @@
           var s2 = document.getElementById(s2);
           s2.innerHTML = "";
           if (s1.value == "curiosity") {
-            var optionArray = ["ALL | All Camera Angles", "FHAZ | Front Hazard Avoidance Camera", "RHAZ | Rear Hazard Avoidance Camera", "MAST | Mast Camera", "CHEMCAM | Chemistry and Camera Complex", "MAHLI | Mars Hand Lens Imager", "MARDI | Mars Descent Imager", "NAVCAM | Navigation Camera"];
+            var optionArray = ["NONE | All Camera Angles", "FHAZ | Front Hazard Avoidance Camera", "RHAZ | Rear Hazard Avoidance Camera", "MAST | Mast Camera", "CHEMCAM | Chemistry and Camera Complex", "MAHLI | Mars Hand Lens Imager", "MARDI | Mars Descent Imager", "NAVCAM | Navigation Camera"];
           } else if (s1.value == "opportunity") {
-            var optionArray = ["ALL | All Camera Angles", "FHAZ | Front Hazard Avoidance Camera", "RHAZ | Rear Hazard Avoidance Camera", "NAVCAM | Navigation Camera", "PANCAM | Panoramic Camera", "MINITES | Miniature Thermal Emission Spectrometer"];
+            var optionArray = ["NONE | All Camera Angles", "FHAZ | Front Hazard Avoidance Camera", "RHAZ | Rear Hazard Avoidance Camera", "NAVCAM | Navigation Camera", "PANCAM | Panoramic Camera", "MINITES | Miniature Thermal Emission Spectrometer"];
           } else if (s1.value == "spirit") {
-            var optionArray = ["ALL | All Cameras Angles", "FHAZ | Front Hazard Avoidance Camera", "RHAZ | Rear Hazard Avoidance Camera", "NAVCAM | Navigation Camera", "PANCAM | Panoramic Camera", "MINITES | Miniature Thermal Emission Spectrometer"];
+            var optionArray = ["NONE | All Cameras Angles", "FHAZ | Front Hazard Avoidance Camera", "RHAZ | Rear Hazard Avoidance Camera", "NAVCAM | Navigation Camera", "PANCAM | Panoramic Camera", "MINITES | Miniature Thermal Emission Spectrometer"];
           }
           for (var option in optionArray) {
             var pair = optionArray[option].split("|");
@@ -25,23 +51,22 @@
             newOption.value = pair[0];
             newOption.innerHTML = pair[1];
             s2.options.add(newOption);
-          }
-        }
+          }};
       </script>
 </header>
       <body>
         <div id="root">
                 <!--Beginning of form -->
-                <div id="userInput">
+                <div id="userInput" padding="20px">
                   <form name="form" id="form" method="POST" action="/results"></form>
                   <!-- Place stylesheet here-->
                   <div name="name">
                   <label> What is your first name, earthling?</label>
-                  <input required type="text" id="name" name="name" minlength="4" maxlength="25" size="25">
+                  <input required class="input-field" type="text" id="name" name="name">
                   </div>
                   <!-- Dynamically populate camera menus as not all rovers have have the same cameras -->
-                  <div name="rover">
-                    <label>Please choose a rover.</label>
+                  <div name="rover" padding="20px">
+                    <label>You must select a rover.</label>
                     <select required id="rover" name="rover" onchange="populate(this.id,'camera')">
                       <option value=""></option>
                       <option id="curiosity" name="curiosity" value="curiosity">Curiosity</option>
@@ -49,21 +74,11 @@
                       <option id="spirit" name="spirit" value="spirit">Spirit</option>
                     </select>
                   </div>
-                  <div name="camera">
-                    <label>Select a camera angle</label>
-                    <hr />
-                    <select name="camera" id="camera" value="ALL"> </select>
+                  <div name="camera" padding="20px">
+                    <label>Choose camera or not.</label> <select name="camera" id="camera" value="NONE"> </select>
                   </div>
-                <!-- Form button calls handleInput function. -->
-                <br>
-                <!-- see form header for onclick event call does it need () ??? -->
+                <!-- see form header for onclick event call -->
                 <input id="submit" name='submit' type="button" value="Transmit Images" onclick="getRoverPhotos(store,updateStore)" />
-                <hr />
-                <div id="results" name="results">
-                <p>Earthling</p><span id="result-name"></span>
-                <p>Chosen Rover</p><span id="result-rover"></span>
-                <p>Camera Angle</p><span id="result-camera"></span>
-                </div>
                 </div>
                   <!--Form ends -->
             </form>

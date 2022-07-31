@@ -1,91 +1,122 @@
 console.log("CLIENT SIDE RUNNING")
 
-if (typeof window !== 'undefined') {
-    console.log('You are on the browser')
-  } else {
-    console.log('You are on the server')
-  }
-
 let store = {
-    name: 'none',
-    apod: 'none',
+    name: 'NONE',
     rovers: ['curiosity', 'opportunity', 'spirit'],
-    rover: 'none',
-    camera: 'none'
+    rover: 'NONE',
+    camera: 'NONE'
 }
 
-// add our markup to the page
+// Add our markup to the page
+
 const updateStore = (store, newState) => {
-    console.log("Store in UpdateStore:")
-    console.log(store)
-    console.log("Store in UpdateStore:")
-    console.log(store)
     store = Object.assign(store, newState)
-    console.log("Store after Assign:")
+    console.log("See STORE below. Main memory updated.")
     console.log(store)
-    console.log("Store updated")
     render(root, store)
 };
 
 const render = async (root, state) => {
     root.innerHTML = App(state)
-    console.log("APP: state")
-    console.log(App(state))
-    console.log("ROOT")
-    console.log(App(root.innerHTML))
 }
 
 // Helper function/code to capitalize words as neccessary.
+
 const capitalize = ([first, ...rest], lowerRest = false) =>
 first.toUpperCase() + (lowerRest ? rest.join('').toLowerCase() : rest.join(''));
 
+// Function invoked by form button (see index.html)
+// Fetches, filters NASA data.
+// Updates store.
+
 const getRoverPhotos = async (store, fn) => {
 
-    const name = document.getElementById('name').value;
-    console.log(name)
-    const rover = document.getElementById('rover').value;
-    console.log(rover)
-    const camera = document.getElementById('camera').value;
-    console.log(camera)
+    const name = document.getElementById('name').value.trim();
+    const rover = document.getElementById('rover').value.trim();
+    const camera = document.getElementById('camera').value.trim();
 
-    const userInfo = new Object();
-    userInfo.name = name
-    userInfo.rover = rover
-    userInfo.camera = camera
+    const userInput = new Object();
+    userInput.name = name;
+    userInput.rover = rover;
+    userInput.camera = camera;
 
-    console.log("User Info Object:")
-    console.log("Parsing into JSON string...")
-    const body = JSON.stringify(userInfo)
+    const body = JSON.stringify(userInput);
+
+    console.log("Request Body after Stringify:")
     console.log(body)
-    console.log(body.length)
 
     const options = {
-      method: "POST",
-      headers: {'Content-Type': "application/json"},
-      body: body
-    };
+        method: "POST",
+        headers: {'Content-Type': "application/json"},
+        body: body
+      };
 
-    console.log("CLIENT SIDE RESPONSE: FETCH IMAGE DATA")
-    const response = await fetch('/results', options)
-    console.log("Okay? ", response.ok)
-    console.log("Unexpected end of input?")
-    console.log(response)
+      console.log("Options Body: BEFORE FETCH")
+      console.log(options.body)
 
-    const json = await response.json();
-    console.log(json)
+      console.log("SERVER SIDE RESPONSE: FETCH IMAGE DATA")
+      const response = await fetch('/results', options)
+      console.log(response)
+      console.log("Okay? ", response.ok)
 
-    if (response.ok === true) {
-        const newState = json
-        updateStore(store, newState)
-        console.log("Response OK. New Store: ", store)
-        return store
+      let results = await response.json();
+      console.log("Results: Latest Photos JSON object")
+      console.log(results)
+
+      // filter results with ternary operators if camera angle chosen
+      // clear newState = to empty object again
+
+      // filter gallery by camera angle if one chosen.
+      // if not chosen in userInput.camera, temp = gallery
+
+      let gallery = [];
+
+      userInput.camera == 'NONE' ? gallery = results.data.latest_photos : gallery = results.data.latest_photos.filter(photo => photo.camera.name.trim() == userInput.camera.trim())
+
+      console.log("What is gallery?")
+      console.log(gallery)
+      console.log("Is gallery array?")
+      console.log(Array.isArray(gallery))
+
+      // Gather values in newState object.
+
+      const newState = {
+        name : name,
+        rover : rover,
+        camera : camera,
+        gallery : gallery
+      }
+
+      console.log("What is newState object?")
+      console.log(newState)
+
+      // camera angle filter often yields no results.
+      // if no images in newstate.gallery, send user back to form
+      // with message to try all camera angles.
+
+      let galleryLength = newState.gallery
+
+      console.log("NewState.gallery Length:")
+      console.log(galleryLength.length)
+
+      // No images in the gallery? if true, go back to form.
+
+      if (galleryLength.length == 0 || undefined) {
+        return (document.write(`<div> 
+        <p>Dear earthling ${newState.name}, <br>.
+        Sorry. No images match those parameters. This shit happens.<br>
+        Please try All Camera Angles to increase the scope. <br>
+        <br> Form resets in ten seconds...</p></div>
+        <script>
+        ${setTimeout(function() {
+        window.location.href = 'index.html'}, 12000)};
+        </script></div>`))
     } else {
-        throw new Error()
-}};
+        updateStore(store, newState)
+        return newState
+}
 
-// Render content based on user input chosenRover.
-// if chosenRover is defined, run function to create slideshow.
-// if chosenRover not defined, redirect user to form
+};
 
 // CREATE CONTENT STARTING HERE:
 // Closure starts
@@ -93,52 +124,45 @@ const getRoverPhotos = async (store, fn) => {
 const App = (state) => {
     let { store } = state
 
-    // Store no longer exists. Absorbed by state.
-    console.log("What is state now?")
+    // Store = state. No longer exists.
+    // Absorbed by state inside App closure.
+
+    console.log("What is state/store now?")
     console.log(state)
 
     // Makes and merges rover and photo info objects for cards.
+    // Called in html for gallery display.
     // Some images are duplicates, but urls are differet.
 
     const showRoverPhotos = (state) => {
-        const imageURLs = state.gallery.latest_photos.map(photo => photo.img_src)
-        const imageObjects = state.gallery.latest_photos.map(photo => photo.img_src = new Image(600,600))
-        const imageDates = state.gallery.latest_photos.map(photo => photo.earth_date)
-        const cameraNames = state.gallery.latest_photos.map(photo => photo.camera.full_name)
-        const roversNames = state.gallery.latest_photos.map(photo => photo.rover.name)
-        const roversStatus = state.gallery.latest_photos.map(photo => photo.rover.status)
-        const roversLaunchDates = state.gallery.latest_photos.map(photo => photo.rover.launch_date)
-        const roversLandDates = state.gallery.latest_photos.map(photo => photo.rover.landing_date)
+        const imageURLs = state.gallery.map(photo => photo.img_src)
+        const imageObjects = state.gallery.map(photo => photo.img_src = new Image(600,600))
+        const imageDates = state.gallery.map(photo => photo.earth_date)
+        const cameraNames = state.gallery.map(photo => photo.camera.full_name)
+        const roversNames = state.gallery.map(photo => photo.rover.name)
+        const roversStatus = state.gallery.map(photo => photo.rover.status)
+        const roversLaunchDates = state.gallery.map(photo => photo.rover.launch_date)
+        const roversLandDates = state.gallery.map(photo => photo.rover.landing_date)
 
         const roverPhotoInfo = (imageURLs, imageObjects, imageDates, cameraNames, roversNames, roversStatus, roversLaunchDates, roversLandDates) => imageURLs.map((imageURL, i) => ({imageURL, imageObject: imageObjects[i], imageDate: imageDates[i], cameraName: cameraNames[i], roverName: roversNames[i],
             roverStatus: roversStatus[i], roverLaunchDate: roversLaunchDates[i], roverLandDate: roversLandDates[i]
-    }));
+        }));
 
-    console.log("Results: Rover Photo Info")
-    console.log(roverPhotoInfo);
-
-    console.log("showRoverPhotos mapped new arrays")
     photoInfo = roverPhotoInfo(imageURLs, imageObjects, imageDates, cameraNames, roversNames, roversStatus, roversLaunchDates, roversLandDates)
-    console.log("roverPhotoInfo: arrays mapped into new objects.")
     const imageMaps = Array.from(photoInfo)
-    console.log("Image maps created.")
     console.log(imageMaps)
 
-    // Flattens array values. Easier to work with.
-    // Don't forget: Single array of objects
-
-    console.log("roverPhoto Info Returning content for each image in gallery")
     return (imageMaps.map( item =>
     `<div class="container">
     <img src=${item.imageURL} width=600px height=600px alt="Mars Rover Photo Taken ${item.imageDate}"/>
     <br>
     <br>
-    <p><span>Rover Name:</span> ${item.roverName}</p>
+    <p><span>Rover Name:</span> ${capitalize(item.roverName)}</p>
     <p><span>Rover Status:</span> ${capitalize(item.roverStatus)}</p>
     <p><span>Launch Date:</span> ${item.roverLaunchDate}</p>
     <p><span>Landing Date:</span> ${item.roverLandDate}</p>
-    <p><span>Image Date:</span> ${item.imageDate}</p>
-    <p><span>Image Date:</span> ${item.cameraName}</p>
+    <p><span>Image Taken:</span> ${item.imageDate}</p>
+    <p><span>Camera Name:</span> ${item.cameraName}</p>
     <p></p>
     <br>
     <hr/>
@@ -146,17 +170,18 @@ const App = (state) => {
     </div>`).slice(0, 50).join(""))
 }
 
-// Image maps not defined. Only state.
-if (state.gallery.latest_photos[0].rover.name != undefined || null || '' || 'none') {
-    console.log("showRoverPhotos called inside html. returns user welcome.")
-    const chosenRover = capitalize(state.gallery.latest_photos[0].rover.name)
+// Greetings for gallery.
+if (state.rover != undefined || null || '' || 'none') {
+    console.log("Show Rover Photos function called inside html.")
+    const chosenRover = capitalize(state.rover)
     return (`
     <header>
     <h2 class="main-title">Welcome to the ${chosenRover} Rover's Gallery</h2>
     </header>
     <div class="main">
     <hr />
-    <p><h4>Greetings, Earthling! Welcome to the Red Planet.</p>
+    <p><h4>Greetings, Earthling ${state.name}!</p>
+    <p>Welcome to the Red Planet.</p>
     <br>
     <br>
     <div>${showRoverPhotos(state)}
@@ -165,13 +190,23 @@ if (state.gallery.latest_photos[0].rover.name != undefined || null || '' || 'non
     <hr />
     </div>
     <footer>
-    <footer>
+    </footer>
     `)
+} else {
+    return (document.write(`<div font-family='Montserrat' font-size='16px'>
+    <p>Dear earthling ${newState.name}, <br>
+    Sorry. No images match those parameters. This shit happens.<br>
+    Please try All Camera Angles to increase the scope. <br>
+    <br> Form resets in ten seconds...</p></div>
+    <script>
+    ${setTimeout(function() {
+    window.location.href = 'index.html'}, 12000)};
+    </script></div>`))
+}
+
+// App closure ends.
 };
 
-// APP Closure ends
-// END OF APP FUNCTION
-console.log("Closure ends here.")
-};
+
 
 
